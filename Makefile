@@ -3,8 +3,9 @@ run:
 	@./index
 
 clean:
-	@rm -f index request
+	@rm -f index request_compiled
 
-request:
-	@gcc request.c -o request
-	@./request
+test_request:
+	@gcc ./request/request.c -o request_compiled
+	@./request_compiled
+	@rm -f request_compiled
