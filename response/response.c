@@ -41,6 +41,8 @@ char* get_mime_type(char* path) {
         return "text/plain";
     }
 }
+
+
 /**
  * Send an arbitrary file to the client.
  * 
@@ -91,6 +93,7 @@ void send_file(int client_sock, char* path) {
     close(client_sock);
     return;
 }
+
 
 /**
  * Send a 404 response to the client
