@@ -10,22 +10,37 @@
 #include <signal.h>
 #include "index.h"
 #include "request/request.h"
+#include "response/response.h"
 
 int sock;
 
+/**
+ * Handle a request from a client. Called from the
+ * server listening loop
+ */
 void handle_request(int client_sock) {
     char buffer[BUFFER_SIZE];
     read(client_sock, buffer, BUFFER_SIZE);
     request* req = parse_request(buffer);
-    print_request(req);
+
+    if (!req) {
+        printf("Failed to parse request\n");
+        return;
+    }
+
+
     free_request(req);
+
+    char* response = make_404();
+
+    send(client_sock, response, strlen(response), 0);
 }
 
 
 /**
  * Signal handler for closing the server
  */
-void close_server(int sig) {
+void close_server() {
     printf("Closing server...\n");
     close(sock);
     exit(0);

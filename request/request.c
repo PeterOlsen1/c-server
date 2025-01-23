@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "request.h"
 
 
@@ -65,6 +62,13 @@ request* parse_request(char* buffer) {
         }
     }
 
+    if (req->content_length > BODY_MAX_SIZE) {
+        printf("Content length exceeds maximum size\n");
+        free(req);
+        free(buffer_copy);
+        return NULL;
+    }
+
     //add 4 to body to get past the \r\n\r\n
     char* body = strstr(buffer, "\r\n\r\n") + 4;
     if (!body) {    //idk where this would even happen
@@ -77,8 +81,9 @@ request* parse_request(char* buffer) {
     //BODY!!!
     req->body = strdup(body);
 
+    printf("Request parsed successfully\n");
+    printf("Request body: %s\n", req->body);
 
-    print_request(req);
     free(buffer_copy);
     return req;
 }
