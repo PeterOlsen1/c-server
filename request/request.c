@@ -1,4 +1,5 @@
 #include "request.h"
+#include "response/response.h"
 
 
 /**
@@ -57,7 +58,7 @@ request* parse_request(char* buffer) {
         } else if (strstr(line, "User-Agent:")) {
             sscanf(line, "User-Agent: %s", req->user_agent);
         } else if (strstr(line, "Content-Length:")) {
-            sscanf(line, "Content-Length: %u", &req->content_length);
+            sscanf(line, "Content-Length: %u", req->content_length);
         }
     }
 
@@ -84,6 +85,12 @@ request* parse_request(char* buffer) {
     return req;
 }
 
+/**
+ * Log the request to the console
+ */
+void log_request(request* req) {
+    printf("Request: %s %s\n", req->method, req->path);
+}
 
 
 /**

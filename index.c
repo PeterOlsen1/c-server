@@ -96,7 +96,8 @@ int main() {
             printf("Failed to accept client connection:\n%s", strerror(errno));
         }
         else {
-            handle_request(client_sock);
+            // handle_request(client_sock);
+            send_error(client_sock, NOT_FOUND, "<h1>404 Not Found</h1>");
         }
     }
 
