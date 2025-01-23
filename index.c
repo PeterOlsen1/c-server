@@ -8,12 +8,19 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <signal.h>
-#include <request.c>
+#include "index.h"
+#include "request/request.h"
 
-#define PORT 3000
-#define HOST "127.0.0.1"
-#define BUFFER_SIZE 4096
 int sock;
+
+void handle_request(int client_sock) {
+    char buffer[BUFFER_SIZE];
+    read(client_sock, buffer, BUFFER_SIZE);
+    request* req = parse_request(buffer);
+    print_request(req);
+    free_request(req);
+}
+
 
 /**
  * Signal handler for closing the server
@@ -76,11 +83,7 @@ int main() {
             printf("Failed to accept client connection:\n%s", strerror(errno));
         }
         else {
-            //read the client request
-            char buffer[BUFFER_SIZE];
-            read(client_sock, buffer, 1024);
-
-            printf("Request: %s\n", buffer);
+            handle_request(client_sock);
         }
     }
 

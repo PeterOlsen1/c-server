@@ -37,4 +37,4 @@ void free_request(request* req);
  */
 void print_request(request* req);
 
-#endif // REQUEST_H
+#endif

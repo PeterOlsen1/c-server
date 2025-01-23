@@ -4,9 +4,6 @@
 #include "request.h"
 
 
-#define HTTP_METHODS ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD", "TRACE", "CONNECT"]
-
-
 /**
  * Parse an HTTP request string and return a request object
  */
@@ -27,6 +24,7 @@ request* parse_request(char* buffer) {
     req->body = malloc(BODY_MAX_SIZE);
 
     char* buffer_copy = strdup(buffer);
+    printf("Buffer copy: %s\n", buffer_copy);
     if (!buffer_copy) {
         printf("Failed to allocate memory for buffer copy\n");
         free(req);
@@ -119,13 +117,13 @@ void print_request(request* req) {
 }
 
 
-/**
- * For testing purposes
- */
-int main() {
-    char* buffer = "GET / HTTP/1.1\r\nContent-Type: application/json\r\nUser-Agent: PostmanRuntime/7.42.0\r\nAccept: */*\r\nPostman-Token: 2e298551-587b-48ab-889d-32139cd129b3\r\nHost: 127.0.0.1:3000\r\nAccept-Encoding: gzip, deflate, br\r\nConnection: keep-alive\r\nContent-Length: 13\r\n\r\n{\"hello\": \"world\"}";
+// /**
+//  * For testing purposes
+//  */
+// int main() {
+//     char* buffer = "GET / HTTP/1.1\r\nContent-Type: application/json\r\nUser-Agent: PostmanRuntime/7.42.0\r\nAccept: */*\r\nPostman-Token: 2e298551-587b-48ab-889d-32139cd129b3\r\nHost: 127.0.0.1:3000\r\nAccept-Encoding: gzip, deflate, br\r\nConnection: keep-alive\r\nContent-Length: 13\r\n\r\n{\"hello\": \"world\"}";
 
-    request* req = parse_request(buffer);
-    free_request(req);
-    return 0;
-}
+//     request* req = parse_request(buffer);
+//     free_request(req);
+//     return 0;
+// }
