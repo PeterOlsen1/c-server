@@ -1,15 +1,15 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Irequest
 
-all: clean run
+all: run
 
 run: clean server
 	@./server
 
-server: index.o request/request.o response/response.o
-	@$(CC) $(CFLAGS) -o server index.o request/request.o response/response.o
+server: index.o response/response.o request/request.o
+	@$(CC) $(CFLAGS) -o server index.o response/response.o request/request.o
 
-index.o: index.c request/request.h response/response.h
+index.o: index.c response/response.h request/request.h
 	@$(CC) $(CFLAGS) -c index.c
 
 request/request.o: request/request.c request/request.h

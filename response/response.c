@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <unistd.h>
 #include "response.h"
 
 /**
@@ -180,7 +176,7 @@ void send_error(int client_sock, char* status, char* body) {
     snprintf(resp_body, resp_body_size, resp_body, body);
 
     //make response
-    char* resp = make_response(NOT_FOUND, "text/html", resp_body_size, resp_body);
+    char* resp = make_response(status, "text/html", resp_body_size, resp_body);
 
     //send it!!!
     send(client_sock, resp, strlen(resp), 0);
