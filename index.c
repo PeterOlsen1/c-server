@@ -28,12 +28,10 @@ void handle_request(int client_sock) {
         return;
     }
 
+    printf("Request recieved: %s\n", req->path);
+    send_file(client_sock, req->path);
 
     free_request(req);
-
-    char* response = make_404();
-
-    send(client_sock, response, strlen(response), 0);
 }
 
 

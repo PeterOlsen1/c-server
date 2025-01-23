@@ -21,7 +21,6 @@ request* parse_request(char* buffer) {
     req->body = malloc(BODY_MAX_SIZE);
 
     char* buffer_copy = strdup(buffer);
-    printf("Buffer copy: %s\n", buffer_copy);
     if (!buffer_copy) {
         printf("Failed to allocate memory for buffer copy\n");
         free(req);
@@ -80,9 +79,6 @@ request* parse_request(char* buffer) {
 
     //BODY!!!
     req->body = strdup(body);
-
-    printf("Request parsed successfully\n");
-    printf("Request body: %s\n", req->body);
 
     free(buffer_copy);
     return req;

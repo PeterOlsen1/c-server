@@ -26,4 +26,6 @@ void send_404(int client_sock);
 
 void send_500(int client_sock);
 
+void send_file(int client_sock, char* path);
+
 #endif
