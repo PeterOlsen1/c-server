@@ -37,4 +37,9 @@ void free_request(request* req);
  */
 void print_request(request* req);
 
+/**
+ * Logs the request to the console
+ */
+void log_request(request* req);
+
 #endif

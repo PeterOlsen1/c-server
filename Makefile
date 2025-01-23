@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Irequest
 
-all: server
+all: clean run
 
 run: clean server
 	@./server
