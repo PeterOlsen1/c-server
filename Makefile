@@ -3,33 +3,36 @@ CFLAGS = -Wall -Wextra -Irequest
 
 all: run
 
-run: clean server
-	@./server
+run: clean server_compile
+	@./index
 
-server: index.o response/response.o request/request.o
-	@$(CC) $(CFLAGS) -o server index.o response/response.o request/request.o
+server_compile: index.o server/server.o server/response/response.o server/request/request.o
+	@$(CC) $(CFLAGS) -o index index.o server/server.o server/response/response.o server/request/request.o
 
-index.o: index.c response/response.h request/request.h
+index.o: index.c
 	@$(CC) $(CFLAGS) -c index.c
 
-request/request.o: request/request.c request/request.h
-	@$(CC) $(CFLAGS) -c request/request.c -o request/request.o
+server/server.o: server/server.c server/response/response.h server/request/request.h
+	@$(CC) $(CFLAGS) -c server/server.c -o server/server.o
 
-response/response.o: response/response.c response/response.h
-	@$(CC) $(CFLAGS) -c response/response.c -o response/response.o
+server/request/request.o: server/request/request.c server/request/request.h
+	@$(CC) $(CFLAGS) -c server/request/request.c -o server/request/request.o
+
+server/response/response.o: server/response/response.c server/response/response.h
+	@$(CC) $(CFLAGS) -c server/response/response.c -o server/response/response.o
 
 
 # testing scripts
-test_request: clean
-	@$(CC) request/request.c -o test_request
-	@./test_request
-	@rm -f test_request
+# test_request: clean
+# 	@$(CC) request/request.c -o test_request
+# 	@./test_request
+# 	@rm -f test_request
 
-test_response: clean
-	@$(CC) response/response.c -o test_response
-	@./test_response
-	@rm -f test_response
+# test_response: clean
+# 	@$(CC) response/response.c -o test_response
+# 	@./test_response
+# 	@rm -f test_response
 
 
 clean:
-	@rm -f *.o request/*.o response/*.o server
+	@rm -f *.o request/*.o response/*.o server/server.o index
