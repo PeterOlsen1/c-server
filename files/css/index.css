@@ -9,6 +9,7 @@ body {
     font-family: "Inter", serif;
     text-align: center;
     color: white;
+    overflow: hidden;
 }
 
 a {

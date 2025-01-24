@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../response/response.h"
 
 #define BODY_MAX_SIZE 4096
 
@@ -25,7 +26,7 @@ typedef struct {
 /**
  * Parse an HTTP request string and return a request object
  */
-request* parse_request(char* buffer);
+request* parse_request(char* buffer, int client_sock);
 
 /**
  * Frees the request object
@@ -42,4 +43,4 @@ void print_request(request* req);
  */
 void log_request(request* req);
 
-#endif
+#endif // REQUEST_H

@@ -21,16 +21,16 @@ int sock;
 void handle_request(int client_sock) {
     char buffer[BUFFER_SIZE];
     read(client_sock, buffer, BUFFER_SIZE);
-    request* req = parse_request(buffer);
+    request* req = parse_request(buffer, client_sock);
 
+    log_request(req);
+
+    //invalid request was already logged. return
     if (!req) {
-        printf("Failed to parse request\n");
         return;
     }
 
-    printf("Request recieved: %s\n", req->path);
     send_file(client_sock, req->path);
-
     free_request(req);
 }
 
@@ -96,8 +96,7 @@ int main() {
             printf("Failed to accept client connection:\n%s", strerror(errno));
         }
         else {
-            // handle_request(client_sock);
-            send_error(client_sock, NOT_FOUND, "<h1>404 Not Found</h1>");
+            handle_request(client_sock);
         }
     }
 

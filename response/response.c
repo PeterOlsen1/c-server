@@ -67,15 +67,22 @@ void send_file(int client_sock, char* path) {
     snprintf(file_path, 128, "./files%s", path);
     FILE* file = fopen(file_path, "r");
 
-    //check if binary file
-    if (strstr((BINARY_FILES), strchr(path, '.'))) {
-        printf("Sending binary file: %s\n", file_path);
+    //grab path extension
+    char* ext = strrchr(path, '.');
+
+    if (!ext) {
+        send_404(client_sock);
+        return;
+    }
+
+    if (strstr((BINARY_FILES), ext)) {
         send_binary(client_sock, file_path);
         return;
     }
 
     //open file
     if (!file) {
+        printf("Failed to open file\n");
         send_404(client_sock);
         return;
     }
@@ -173,7 +180,7 @@ void send_error(int client_sock, char* status, char* body) {
     //format the response body
     size_t resp_body_size = fsize + strlen(body) - 1;
     char* resp_body = malloc(resp_body_size);
-    snprintf(resp_body, resp_body_size, resp_body, body);
+    snprintf(resp_body, resp_body_size, file_content, body);
 
     //make response
     char* resp = make_response(status, "text/html", resp_body_size, resp_body);
@@ -183,45 +190,19 @@ void send_error(int client_sock, char* status, char* body) {
 
     //housekeeping
     free(resp_body);
+    free(file_content);
     free(resp);
     fclose(file);
     close(client_sock);
     return;
 }
 
+
 /**
  * Send a 404 response to the client
  */
 void send_404(int client_sock) {
-    FILE* file = fopen("./files/404.html", "r");
-
-    if (!file) {
-        printf("Failed to open file\n");
-        send_500(client_sock);
-        return;
-    }
-
-    //get file size
-    fseek(file, 0, SEEK_END);
-    int fsize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    //read file into response body
-    char* body = malloc(fsize + 1);
-    fread(body, 1, fsize, file);
-    body[fsize] = '\0';
-
-    //make response
-    char* resp = make_response(NOT_FOUND, "text/html", fsize + 1, body);
-
-    //send it!!!
-    send(client_sock, resp, strlen(resp), 0);
-
-    //housekeeping
-    free(body);
-    free(resp);
-    fclose(file);
-    close(client_sock);
+    send_error(client_sock, NOT_FOUND, "<h1>404 Not Found</h1>");
     return;
 }
 

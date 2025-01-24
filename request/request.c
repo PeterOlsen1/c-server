@@ -1,14 +1,14 @@
 #include "request.h"
-// #include "response/response.h"
 
 
 /**
  * Parse an HTTP request string and return a request object
  */
-request* parse_request(char* buffer) {
+request* parse_request(char* buffer, int client_sock) {
     request* req = malloc(sizeof(request));
     if (!req) {
         printf("Failed to allocate memory for request object\n");
+        send_error(client_sock, INTERNAL_SERVER_ERROR, "Failed to allocate memory for request object");
         return NULL;
     }
 
@@ -25,6 +25,7 @@ request* parse_request(char* buffer) {
     if (!buffer_copy) {
         printf("Failed to allocate memory for buffer copy\n");
         free(req);
+        send_error(client_sock, INTERNAL_SERVER_ERROR, "Failed to allocate memory for buffer copy");
         return NULL;
     }
 
@@ -35,6 +36,7 @@ request* parse_request(char* buffer) {
         printf("Failed to parse request\n");
         free(req);
         free(buffer_copy);
+        send_error(client_sock, BAD_REQUEST, "Failed to parse request");
         return NULL;
     }
     
@@ -66,15 +68,17 @@ request* parse_request(char* buffer) {
         printf("Content length exceeds maximum size\n");
         free(req);
         free(buffer_copy);
+        send_error(client_sock, TOO_LARGE, "Content length exceeds maximum size");
         return NULL;
     }
 
     //add 4 to body to get past the \r\n\r\n
     char* body = strstr(buffer, "\r\n\r\n") + 4;
     if (!body) {    //idk where this would even happen
-        printf("Failed to find body\n");
+        printf("Failed to find request body\n");
         free(req);
         free(buffer_copy);
+        send_error(client_sock, BAD_REQUEST, "Failed to find body");
         return NULL;
     }
 
@@ -89,7 +93,12 @@ request* parse_request(char* buffer) {
  * Log the request to the console
  */
 void log_request(request* req) {
-    printf("Request: %s %s\n", req->method, req->path);
+    if (!req) {
+        printf("Invalid request recieved\n");
+    }
+    else {
+        printf("Incoming request: %s %s\n", req->method, req->path);
+    }
 }
 
 

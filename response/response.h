@@ -69,4 +69,4 @@ void send_binary(int client_sock, char* path);
  */
 void send_file(int client_sock, char* path);
 
-#endif
+#endif // RESPONSE_H
