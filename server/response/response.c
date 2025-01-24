@@ -116,7 +116,13 @@ void send_file(int client_sock, char* path) {
 
 
 /**
- * Send a binary file to the client
+ * Send a binary file to the client.
+ * 
+ * This one operates differnetly in the way that we open
+ * the file and the way that we send data back to the client.
+ * 
+ * Since we can't send binary data and text data at the same time,
+ * we send them with separate socket calls.
  */
 void send_binary(int client_sock, char* path) {
     FILE* file = fopen(path, "rb");

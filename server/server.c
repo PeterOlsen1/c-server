@@ -2,6 +2,10 @@
 
 int sock;
 
+void send_from_directory(server* server, char* path) {
+
+}
+
 /**
  * Handle a request from a client. Called from the
  * server listening loop
@@ -36,7 +40,7 @@ void close_server() {
 /**
  * Start server and start accepting requests
  */
-int serve() {
+int serve(server* server) {
     //close the server if the user stops the program
     signal(SIGINT, close_server);
     
@@ -55,26 +59,41 @@ int serve() {
     }
 
     //do some housekeeping stuff and set up our server
-    struct sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(PORT);
-    server.sin_addr.s_addr = inet_addr(HOST);
+    struct sockaddr_in socket_server;
+    socket_server.sin_family = AF_INET;
+    if (server->port) {
+        socket_server.sin_port = htons(server->port);
+    } else {
+        socket_server.sin_port = htons(PORT);
+    }
+    socket_server.sin_addr.s_addr = inet_addr(HOST);
 
     //bind socket to address
-    int binded = bind(sock, (struct sockaddr*)&server, sizeof(server));
+    int binded = bind(sock, (struct sockaddr*)&socket_server, sizeof(socket_server));
     if (binded < 0) {
         printf("Failed to bind to the socket:\n%s", strerror(errno));
         return -1;
     }
 
     //listen!!!!
-    int listening = listen(sock, 10);
+    int listening;
+    if (server->max_sockets) {
+        listening = listen(sock, server->max_sockets);
+    } else {
+        listening = listen(sock, 10);
+    }
+
     if (listening < 0) {
         printf("Failed to listen on the socket:\n%s", strerror(errno));
         return -1;
     }
 
-    printf("Server is listening on %s:%d!\n", HOST, PORT);
+    //log that we're listening
+    if (server->port) {
+        printf("Server is listening on %s:%d!\n", HOST, server->port);
+    } else {
+        printf("Server is listening on %s:%d!\n", HOST, PORT);
+    }
 
 
     //enter listening loop

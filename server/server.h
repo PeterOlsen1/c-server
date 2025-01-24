@@ -17,6 +17,30 @@
 #define PORT 8080
 #define HOST "127.0.0.1"
 #define BUFFER_SIZE 4096
+#define MAX_ROUTES 100
+
+// define function pointer to handle request to a route
+typedef void (*route_handler)(int client_sock);
+
+// define a route object
+typedef struct {
+    char* path;
+    route_handler handler;
+} route;
+
+// define server object
+typedef struct {
+    route routes[MAX_ROUTES];
+    unsigned int max_request_size;
+    unsigned int port;
+    unsigned int max_sockets;
+    char base_directory[255]; 
+} server;
+
+/**
+ * Define a directory form which all files will be served by default.
+ */
+void send_from_directory(server* server, char* path);
 
 /**
  * Handle a request from a client on the given
@@ -39,5 +63,5 @@ void close_server();
  * 
  * It starts the server and begins listening for requests.
  */
-int serve();
+int serve(server* server);
 #endif

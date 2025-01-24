@@ -1,3 +1,5 @@
 .vscode
-*.o
 
+# built files
+*.o
+index
