@@ -57,33 +57,44 @@ char* get_mime_type(char* path) {
  * If the given file does not exist, send a 404 response.
  */
 void send_file(int client_sock, char* path) {
-    char file_path[128];
+    if (path == NULL) {
+        send_404(client_sock);
+        return;
+    }
 
+    int path_len = strlen(path) + 8;
     if (strcmp(path, "/") == 0) {
         path = "/index.html";
+        path_len = strlen(path) + 8;
     } 
 
+    char* file_path = malloc(path_len);
+
     //format the file path
-    snprintf(file_path, 128, "./files%s", path);
-    FILE* file = fopen(file_path, "r");
+    snprintf(file_path, path_len, "./files%s", path);
 
     //grab path extension
     char* ext = strrchr(path, '.');
 
     if (!ext) {
         send_404(client_sock);
+        free(file_path);
         return;
     }
 
+    //check if file is binary
     if (strstr((BINARY_FILES), ext)) {
         send_binary(client_sock, file_path);
+        free(file_path);
         return;
     }
 
     //open file
+    FILE* file = fopen(file_path, "r");
     if (!file) {
         printf("Failed to open file\n");
         send_404(client_sock);
+        free(file_path);
         return;
     }
 
@@ -94,6 +105,11 @@ void send_file(int client_sock, char* path) {
 
     //read file into response body
     char* body = malloc(fsize + 1);
+    if (!body) {
+        printf("Failed to allocate memory for resposne body\n");
+        send_500(client_sock);
+        return;
+    }
     fread(body, 1, fsize, file);
     body[fsize] = '\0';
 
@@ -109,6 +125,7 @@ void send_file(int client_sock, char* path) {
     //housekeeping
     free(body);
     free(resp);
+    free(file_path);
     fclose(file);
     close(client_sock);
     return;

@@ -43,6 +43,7 @@ request* parse_request(char* buffer, int client_sock) {
     //scan first line real quick
     sscanf(line, "%s %s %s", req->method, req->path, req->version);
 
+    int content_length_found = 0;
     //extract more info from the request
     while (line) {
         line = strtok(NULL, delim);
@@ -64,7 +65,7 @@ request* parse_request(char* buffer, int client_sock) {
         }
     }
 
-    if (req->content_length > BODY_MAX_SIZE) {
+    if (req->content_length > BODY_MAX_SIZE && content_length_found) {
         printf("Content length exceeds maximum size\n");
         free(req);
         free(buffer_copy);

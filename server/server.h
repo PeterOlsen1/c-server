@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <signal.h>
+#include <pthread.h>
 #include "request/request.h"
 #include "response/response.h"
 
@@ -37,10 +38,7 @@ typedef struct {
     char base_directory[255]; 
 } server;
 
-/**
- * Define a directory form which all files will be served by default.
- */
-void send_from_directory(server* server, char* path);
+
 
 /**
  * Handle a request from a client on the given
@@ -48,7 +46,7 @@ void send_from_directory(server* server, char* path);
  * the "request" and "response" modules to get
  * this done.
  */
-void handle_request(int client_sock);
+void handle_request(void* client_sock_ptr);
 
 /**
  * Closes the server and exits the program.
@@ -63,5 +61,5 @@ void close_server();
  * 
  * It starts the server and begins listening for requests.
  */
-int serve(server* server);
+int start_server(server* server);
 #endif

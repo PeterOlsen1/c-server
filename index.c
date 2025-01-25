@@ -6,7 +6,7 @@ int main() {
     server->port = 8080;
     server->max_sockets = 1;
 
-    serve(server);
+    start_server(server);
 
     return 0;
 }

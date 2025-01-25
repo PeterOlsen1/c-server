@@ -2,15 +2,16 @@
 
 int sock;
 
-void send_from_directory(server* server, char* path) {
 
-}
 
 /**
  * Handle a request from a client. Called from the
  * server listening loop
  */
-void handle_request(int client_sock) {
+void handle_request(void* client_sock_ptr) {
+    int client_sock = *(int*)client_sock_ptr;
+    free(client_sock_ptr);
+
     char buffer[BUFFER_SIZE];
     read(client_sock, buffer, BUFFER_SIZE);
     request* req = parse_request(buffer, client_sock);
@@ -19,10 +20,12 @@ void handle_request(int client_sock) {
 
     //invalid request was already logged. return
     if (!req) {
+        printf("bad!\n");
         return;
     }
-    
+
     send_file(client_sock, req->path);
+
     free_request(req);
 }
 
@@ -40,7 +43,7 @@ void close_server() {
 /**
  * Start server and start accepting requests
  */
-int serve(server* server) {
+int start_server(server* server) {
     //close the server if the user stops the program
     signal(SIGINT, close_server);
     
@@ -106,7 +109,11 @@ int serve(server* server) {
             printf("Failed to accept client connection:\n%s", strerror(errno));
         }
         else {
-            handle_request(client_sock);
+            int* client_sock_ptr = malloc(sizeof(int));
+            *client_sock_ptr = client_sock;
+            pthread_t thread_id;
+            pthread_create(&thread_id, NULL, handle_request, client_sock_ptr);
+            pthread_detach(thread_id);
         }
     }
 
