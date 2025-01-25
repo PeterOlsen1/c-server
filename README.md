@@ -12,6 +12,6 @@ This command boots up the server and starts accepting requests on localhost:3000
 TODO:
 * Make sure body parsing does not take any extra characters with it
 * Log requests properly to the console
-* send_from_directory
 * Get routes going
   * (might need to change parameters in the request module / how methods operate)
+  * we could change routes to be stored in a hash table for faster lookup, doesn't really matter when max routes is 100 though

@@ -21,7 +21,7 @@
 #define MAX_ROUTES 100
 
 // define function pointer to handle request to a route
-typedef void (*route_handler)(int client_sock);
+typedef void (*route_handler)(request* req);
 
 // define a route object
 typedef struct {
@@ -32,20 +32,29 @@ typedef struct {
 // define server object
 typedef struct {
     route routes[MAX_ROUTES];
+    char base_directory[255]; 
+    unsigned int route_count;
     unsigned int max_request_size;
     unsigned int port;
     unsigned int max_sockets;
-    char base_directory[255]; 
 } server;
 
+/**
+ * Initialize the server object with default values.
+ */
+server* init();
 
+/**
+ * Register a route with the server
+ */
+void register_route(char* path, route_handler handler);
 
 /**
  * Handle a request from a client on the given
  * socket number. Calls functions from 
  * the "request" and "response" modules to get
  * this done.
- */
+ */ 
 void handle_request(void* client_sock_ptr);
 
 /**
@@ -61,5 +70,6 @@ void close_server();
  * 
  * It starts the server and begins listening for requests.
  */
-int start_server(server* server);
-#endif
+int start_server();
+
+#endif // SERVER_H

@@ -20,6 +20,7 @@ typedef struct {
     char *connection;
     char *user_agent;
     unsigned int content_length;
+    int socket;
     char *body;
 } request;
 

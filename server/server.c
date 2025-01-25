@@ -1,7 +1,55 @@
 #include "server.h"
 
 int sock;
+server* SERVER;
+int server_running = 0;
 
+server* init() {
+    printf("Server size: %lu\n", sizeof(server));
+    server* server = malloc(sizeof(server));
+
+    if (!server) {
+        printf("Failed to allocate memory for server object\n");
+        return NULL;
+    }
+    server->route_count = 0;
+    server->max_request_size = 4096;
+    server->port = 8080;
+    server->max_sockets = 10;
+    strcpy(server->base_directory, "public");
+
+    SERVER = server;
+    return server;
+}
+
+
+/**
+ * Register a route with the server
+ */
+void register_route(char* path, route_handler handler) {
+    if (SERVER->route_count >= MAX_ROUTES) {
+        printf("Max routes reached\n");
+        return;
+    }
+
+    //check if route has already been registered
+    for (unsigned int i = 0; i < SERVER->route_count; i++) {
+        if (!strcmp(SERVER->routes[i].path, path)) {
+            printf("Route \"%s\" already exists\n", path);
+            return;
+        }
+    }
+
+    //make object
+    route* r = malloc(sizeof(route));
+    r->path = path;
+    r->handler = handler;
+
+    //add to server
+    SERVER->routes[SERVER->route_count] = *r;
+    SERVER->route_count++;
+    return;
+}
 
 
 /**
@@ -20,12 +68,25 @@ void handle_request(void* client_sock_ptr) {
 
     //invalid request was already logged. return
     if (!req) {
-        printf("bad!\n");
+        printf("Bad request!\n");
         return;
     }
 
-    send_file(client_sock, req->path);
+    //find the router for this file
+    for (unsigned int i = 0; i < SERVER->route_count; i++) {
+        route* r = &SERVER->routes[i];
+        if (!r) {
+            continue;
+        }
 
+        if (strcmp(req->path, r->path) == 0) {
+            SERVER->routes[i].handler(req);
+            free_request(req);
+            return;
+        }
+    }
+
+    send_404(client_sock);
     free_request(req);
 }
 
@@ -43,7 +104,17 @@ void close_server() {
 /**
  * Start server and start accepting requests
  */
-int start_server(server* server) {
+int start_server() {
+    if (server_running) {
+        printf("Server is already running\n");
+        return -1;
+    }
+
+    if (!SERVER) {
+        printf("Server object is invalid\n");
+        return -1;
+    }
+
     //close the server if the user stops the program
     signal(SIGINT, close_server);
     
@@ -64,8 +135,8 @@ int start_server(server* server) {
     //do some housekeeping stuff and set up our server
     struct sockaddr_in socket_server;
     socket_server.sin_family = AF_INET;
-    if (server->port) {
-        socket_server.sin_port = htons(server->port);
+    if (SERVER->port) {
+        socket_server.sin_port = htons(SERVER->port);
     } else {
         socket_server.sin_port = htons(PORT);
     }
@@ -80,8 +151,8 @@ int start_server(server* server) {
 
     //listen!!!!
     int listening;
-    if (server->max_sockets) {
-        listening = listen(sock, server->max_sockets);
+    if (SERVER->max_sockets) {
+        listening = listen(sock, SERVER->max_sockets);
     } else {
         listening = listen(sock, 10);
     }
@@ -92,12 +163,13 @@ int start_server(server* server) {
     }
 
     //log that we're listening
-    if (server->port) {
-        printf("Server is listening on %s:%d!\n", HOST, server->port);
+    if (SERVER->port) {
+        printf("Server is listening on %s:%d!\n", HOST, SERVER->port);
     } else {
         printf("Server is listening on %s:%d!\n", HOST, PORT);
     }
 
+    server_running = 1;
 
     //enter listening loop
     while (1) {

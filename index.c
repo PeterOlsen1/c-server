@@ -1,10 +1,13 @@
 #include "server/server.h"
 
-int main() {
-    server* server = malloc(sizeof(server));
+void hello_world(request* req) {
+    send_file(req->socket, "/index.html");
+}
 
-    server->port = 8080;
-    server->max_sockets = 1;
+int main() {
+    server* server = init();
+
+    register_route("/", hello_world);
 
     start_server(server);
 

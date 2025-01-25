@@ -19,6 +19,7 @@ request* parse_request(char* buffer, int client_sock) {
     req->host = malloc(50);
     req->connection = malloc(50);
     req->user_agent = malloc(50);
+    req->socket = client_sock;
     req->body = malloc(BODY_MAX_SIZE);
 
     char* buffer_copy = strdup(buffer);
