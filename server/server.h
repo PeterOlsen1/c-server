@@ -19,6 +19,7 @@
 #define HOST "127.0.0.1"
 #define BUFFER_SIZE 4096
 #define MAX_ROUTES 100
+#define MAX_STATIC_ROUTES 30
 
 // define function pointer to handle request to a route
 typedef void (*route_handler)(request* req);
@@ -32,8 +33,10 @@ typedef struct {
 // define server object
 typedef struct {
     route routes[MAX_ROUTES];
+    char* static_routes[MAX_STATIC_ROUTES];
     char base_directory[255]; 
     unsigned int route_count;
+    unsigned int static_route_count;
     unsigned int max_request_size;
     unsigned int port;
     unsigned int max_sockets;

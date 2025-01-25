@@ -13,6 +13,7 @@ server* init() {
         return NULL;
     }
     server->route_count = 0;
+    server->static_route_count = 0;
     server->max_request_size = 4096;
     server->port = 8080;
     server->max_sockets = 10;
@@ -51,15 +52,36 @@ void register_route(char* path, route_handler handler) {
     return;
 }
 
+void register_static(char* path) {
+    if (SERVER->static_route_count >= MAX_STATIC_ROUTES) {
+        printf("Max static routes reached\n");
+        return;
+    }
+
+    //check if route has already been registered
+    for (unsigned int i = 0; i < SERVER->static_route_count; i++) {
+        if (!strcmp(SERVER->static_routes[i], path)) {
+            printf("Route \"%s\" already exists\n", path);
+            return;
+        }
+    }
+
+    //add to server
+    SERVER->static_routes[SERVER->static_route_count] = path;
+    SERVER->static_route_count++;
+    return;
+}
+
 
 /**
  * Handle a request from a client. Called from the
  * server listening loop
  */
 void handle_request(void* client_sock_ptr) {
-    int client_sock = *(int*)client_sock_ptr;
+    int client_sock = *(int*)client_sock_ptr; //cast to int pointer and dereference
     free(client_sock_ptr);
 
+    //read and parse request data
     char buffer[BUFFER_SIZE];
     read(client_sock, buffer, BUFFER_SIZE);
     request* req = parse_request(buffer, client_sock);
@@ -69,6 +91,7 @@ void handle_request(void* client_sock_ptr) {
     //invalid request was already logged. return
     if (!req) {
         printf("Bad request!\n");
+        send_error(client_sock, BAD_REQUEST, "Bad request");
         return;
     }
 
@@ -86,6 +109,17 @@ void handle_request(void* client_sock_ptr) {
         }
     }
 
+
+    //check static file request
+    for (unsigned int i = 0; i < SERVER->static_route_count; i++) {
+        if (strcmp(req->path, SERVER->static_routes[i]) == 0) {
+            send_file(client_sock, req->path);
+            free_request(req);
+            return;
+        }
+    }
+
+    //couldn't find the route, 404!!!!
     send_404(client_sock);
     free_request(req);
 }

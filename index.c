@@ -6,9 +6,7 @@ void hello_world(request* req) {
 
 int main() {
     server* server = init();
-
     register_route("/", hello_world);
-
     start_server(server);
 
     return 0;
