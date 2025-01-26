@@ -21,6 +21,11 @@
 #define URI_TOO_LONG "414 URI Too Long"
 #define INTERNAL_SERVER_ERROR "500 Internal Server Error"
 
+
+typedef struct {
+    int client_sock;
+} response;
+
 /**
  * Create a response to send to the client. This method is to be called one all is done.
  */
@@ -71,6 +76,6 @@ void send_binary(int client_sock, char* path);
 /**
  * Send an arbitrary file to the client. (NOT BINARY YET)
  */
-void send_file(int client_sock, char* path);
+void send_file(response* res, char* path);
 
 #endif // RESPONSE_H

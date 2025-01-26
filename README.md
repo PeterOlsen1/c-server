@@ -12,7 +12,7 @@ I am practicing my c skills here. Don't expect anything monumental. There's prob
 4. Call the *start_server* method, and the server will begin accepting requests on localhost:8080
 
 ### To configure routes:
-1. Define some function that accepts a *request\** as an argument.
+1. Define some function that accepts *request\*, response** as arguments.
 2. Call the *register_route* function, with (char* route, f (request* -> void)) as the arguments
 3. Include info about static routes here when i actually do them
 
@@ -23,8 +23,8 @@ Idk figure out stuff with makeifles
 ```c
 #include "server/server.h"
 
-void hello_world(request* req) {
-    send_file(req->socket, "/index.html");
+void hello_world(request* req, response* res) {
+    send_file(res, "/index.html");
 }
 
 int main() {
@@ -41,5 +41,5 @@ TODO:
 * Log requests properly to the console
 
 * Static routes
-* Create a resposne struct that is automatically initialized in a wrapper function of handle_request so we can send_file(res, path)
-* This is good so we don't have to send_file(req->socket, path)
+* Differnet request types
+* JSON?

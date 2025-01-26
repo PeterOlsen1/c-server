@@ -22,7 +22,7 @@
 #define MAX_STATIC_ROUTES 30
 
 // define function pointer to handle request to a route
-typedef void (*route_handler)(request* req);
+typedef void (*route_handler)(request* req, response* res);
 
 // define a route object
 typedef struct {
@@ -58,7 +58,7 @@ void register_route(char* path, route_handler handler);
  * the "request" and "response" modules to get
  * this done.
  */ 
-void handle_request(void* client_sock_ptr);
+void* handle_request(void* client_sock_ptr);
 
 /**
  * Closes the server and exits the program.

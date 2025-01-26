@@ -52,6 +52,9 @@ void register_route(char* path, route_handler handler) {
     return;
 }
 
+/**
+* Regsister a static route. We're still working on this one
+*/
 void register_static(char* path) {
     if (SERVER->static_route_count >= MAX_STATIC_ROUTES) {
         printf("Max static routes reached\n");
@@ -77,7 +80,7 @@ void register_static(char* path) {
  * Handle a request from a client. Called from the
  * server listening loop
  */
-void handle_request(void* client_sock_ptr) {
+void* handle_request(void* client_sock_ptr) {
     int client_sock = *(int*)client_sock_ptr; //cast to int pointer and dereference
     free(client_sock_ptr);
 
@@ -85,6 +88,8 @@ void handle_request(void* client_sock_ptr) {
     char buffer[BUFFER_SIZE];
     read(client_sock, buffer, BUFFER_SIZE);
     request* req = parse_request(buffer, client_sock);
+    response* res = malloc(sizeof(response));
+    res->client_sock = client_sock;
 
     log_request(req);
 
@@ -92,7 +97,7 @@ void handle_request(void* client_sock_ptr) {
     if (!req) {
         printf("Bad request!\n");
         send_error(client_sock, BAD_REQUEST, "Bad request");
-        return;
+        return NULL;
     }
 
     //find the router for this file
@@ -103,9 +108,9 @@ void handle_request(void* client_sock_ptr) {
         }
 
         if (strcmp(req->path, r->path) == 0) {
-            SERVER->routes[i].handler(req);
+            SERVER->routes[i].handler(req, res);
             free_request(req);
-            return;
+            return NULL;
         }
     }
 
@@ -113,9 +118,9 @@ void handle_request(void* client_sock_ptr) {
     //check static file request
     for (unsigned int i = 0; i < SERVER->static_route_count; i++) {
         if (strcmp(req->path, SERVER->static_routes[i]) == 0) {
-            send_file(client_sock, req->path);
+            send_file(res, req->path);
             free_request(req);
-            return;
+            return NULL;
         }
     }
 

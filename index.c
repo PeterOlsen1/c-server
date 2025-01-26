@@ -1,7 +1,7 @@
 #include "server/server.h"
 
-void hello_world(request* req) {
-    send_file(req->socket, "/index.html");
+void hello_world(request* req, response* res) {
+    send_file(res, "/index.html");
 }
 
 int main() {

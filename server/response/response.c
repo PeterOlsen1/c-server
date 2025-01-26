@@ -56,7 +56,9 @@ char* get_mime_type(char* path) {
  * 
  * If the given file does not exist, send a 404 response.
  */
-void send_file(int client_sock, char* path) {
+void send_file(response* res, char* path) {
+    int client_sock = res->client_sock;
+    
     if (path == NULL) {
         send_404(client_sock);
         return;
