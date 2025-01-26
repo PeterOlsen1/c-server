@@ -42,4 +42,6 @@ TODO:
 
 * Static routes
 * Differnet request types
+  * parsing post requests (mentioned earlier)
+  * allow for endpoint definition of what to do in different reuqest types
 * JSON?
