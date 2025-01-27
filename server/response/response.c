@@ -51,6 +51,25 @@ char* get_mime_type(char* path) {
 }
 
 
+void send_text(response* res, char* text) {
+    int client_sock = res->client_sock;
+
+    char* resp = make_response(OK, "text/plain", strlen(text), text);
+    send(client_sock, resp, strlen(resp), 0);
+    close(client_sock);
+    return;
+}
+
+void send_json(response* res, char* json) {
+    int client_sock = res->client_sock;
+
+    char* resp = make_response(OK, "application/json", strlen(json), json);
+    send(client_sock, resp, strlen(resp), 0);
+    close(client_sock);
+    return;
+}
+
+
 /**
  * Send an arbitrary file to the client.
  * 
@@ -180,10 +199,13 @@ void send_binary(int client_sock, char* path) {
     return;
 }
 
+
 /**
  * Sends an arbitrary error response to the client
  */
-void send_error(int client_sock, char* status, char* body) {
+void send_error(response* res, char* status, char* body) {
+    int client_sock = res->client_sock;
+
     FILE* file = fopen("./files/error.html", "r");
 
     if (!file) {
@@ -226,7 +248,8 @@ void send_error(int client_sock, char* status, char* body) {
 /**
  * Send a 404 response to the client
  */
-void send_404(int client_sock) {
+void send_404(response* res) {
+    int client_sock = res->client_sock;
     send_error(client_sock, NOT_FOUND, "<h1>404 Not Found</h1>");
     return;
 }
@@ -235,7 +258,8 @@ void send_404(int client_sock) {
 /**
  * Send a 500 response to the client
  */
-void send_500(int client_sock) {
+void send_500(response* res) {
+    int client_sock = res->client_sock;
     char* body = "<h1>500 Internal Server Error</h1>";
     char* resp = make_response(INTERNAL_SERVER_ERROR, "text/html", strlen(body), body);
     send(client_sock, resp, strlen(resp), 0);

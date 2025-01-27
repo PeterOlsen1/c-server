@@ -8,6 +8,16 @@
 
 #define BODY_MAX_SIZE 4096
 
+#define GET "GET"
+#define POST "POST"
+#define PUT "PUT"
+#define DELETE "DELETE"
+#define OPTIONS "OPTIONS"
+#define HEAD "HEAD"
+#define TRACE "TRACE"
+#define CONNECT "CONNECT"
+#define PATCH "PATCH"
+
 /**
  * Define a type to represent a request object
  */

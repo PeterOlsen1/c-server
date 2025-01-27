@@ -21,7 +21,12 @@
 #define URI_TOO_LONG "414 URI Too Long"
 #define INTERNAL_SERVER_ERROR "500 Internal Server Error"
 
-
+/**
+ * Basic response object to abstract the client socket from the user.
+ * 
+ * Send this with every response method so that the user doesn't need
+ * to worry about the socket, just the 'res' variable, (which is a lot prettier)
+ */
 typedef struct {
     int client_sock;
 } response;
@@ -49,15 +54,42 @@ char* make_response_header(char* status, char* content_type, int content_length)
  */
 char* get_mime_type(char* path);
 
+// SEND TEXT AND FILES
+
+/**
+ * Send a plaintext response to the client.
+ */
+void send_text(response* res, char* text);
+
+
+/**
+ * Send a json response to the clinet.
+ */
+void send_json(response* res, char* json);
+
+
+/**
+ * Send an arbitrary file to the client. (NOT BINARY YET)
+ */
+void send_file(response* res, char* path);
+
+/**
+ * Send a binary file to the client
+ */
+void send_binary(int client_sock, char* path);
+
+
+// SEND ERRORS TO THE CLIENT 
+
 /**
  * Send a 404 response to the client.
  */
-void send_404(int client_sock);
+void send_404(response* res);
 
 /**
  * Send a 500 response to the client.
  */
-void send_500(int client_sock);
+void send_500(response* res);
 
 /**
  * Sends an arbitrary error response.
@@ -66,16 +98,7 @@ void send_500(int client_sock);
  * be sent to the client, and body is the text that will be 
  * displayed on the web page.
  */
-void send_error(int client_sock, char* status, char* body);
+void send_error(response* res, char* status, char* body);
 
-/**
- * Send a binary file to the client
- */
-void send_binary(int client_sock, char* path);
-
-/**
- * Send an arbitrary file to the client. (NOT BINARY YET)
- */
-void send_file(response* res, char* path);
 
 #endif // RESPONSE_H

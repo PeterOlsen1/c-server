@@ -45,3 +45,4 @@ TODO:
   * parsing post requests (mentioned earlier)
   * allow for endpoint definition of what to do in different reuqest types
 * JSON?
+  * JSON module from scratch? (essentially hash table)

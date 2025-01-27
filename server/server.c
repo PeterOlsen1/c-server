@@ -27,7 +27,7 @@ server* init() {
 /**
  * Register a route with the server
  */
-void register_route(char* path, route_handler handler) {
+void register_route(char* path, char* method, route_handler handler) {
     if (SERVER->route_count >= MAX_ROUTES) {
         printf("Max routes reached\n");
         return;
@@ -45,6 +45,7 @@ void register_route(char* path, route_handler handler) {
     route* r = malloc(sizeof(route));
     r->path = path;
     r->handler = handler;
+    r->method = method;
 
     //add to server
     SERVER->routes[SERVER->route_count] = *r;
@@ -100,6 +101,9 @@ void* handle_request(void* client_sock_ptr) {
         return NULL;
     }
 
+    //set this to 1 if we hit an endpoint but the method is not allowed
+    int method_flag = 0;
+
     //find the router for this file
     for (unsigned int i = 0; i < SERVER->route_count; i++) {
         route* r = &SERVER->routes[i];
@@ -108,6 +112,12 @@ void* handle_request(void* client_sock_ptr) {
         }
 
         if (strcmp(req->path, r->path) == 0) {
+            //not the correct method
+            if (strcmp(req->method, r->method)) {
+                method_flag = 1;
+                continue;
+            }
+
             SERVER->routes[i].handler(req, res);
             free_request(req);
             return NULL;
@@ -122,6 +132,13 @@ void* handle_request(void* client_sock_ptr) {
             free_request(req);
             return NULL;
         }
+    }
+
+    //method wasn't allowed
+    if (method_flag) {
+        send_error(res, METHOD_NOT_ALLOWED, "Method not allowed");
+        free_request(req);
+        return NULL;
     }
 
     //couldn't find the route, 404!!!!

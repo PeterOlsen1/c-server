@@ -26,8 +26,9 @@ typedef void (*route_handler)(request* req, response* res);
 
 // define a route object
 typedef struct {
-    char* path;
     route_handler handler;
+    char* path;
+    char* method;
 } route;
 
 // define server object
@@ -50,7 +51,7 @@ server* init();
 /**
  * Register a route with the server
  */
-void register_route(char* path, route_handler handler);
+void register_route(char* path, char* method, route_handler handler);
 
 /**
  * Handle a request from a client on the given
