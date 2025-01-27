@@ -24,18 +24,29 @@
 // define function pointer to handle request to a route
 typedef void (*route_handler)(request* req, response* res);
 
-// define a route object
+/**
+ * Hold the information for a route object.
+ * 
+ * route_handler is a function pointer to code that will execute on
+ * a request to the path. If you want to have a route with
+ * multiple supported methods, you need to register differnet routes.
+ */
 typedef struct {
     route_handler handler;
     char* path;
     char* method;
 } route;
 
+typedef struct {
+    char* path;
+    char* url_prefix;
+} static_route;
+
 // define server object
 typedef struct {
-    route routes[MAX_ROUTES];
-    char* static_routes[MAX_STATIC_ROUTES];
-    char base_directory[255]; 
+    route* routes[MAX_ROUTES];
+    static_route* static_routes[MAX_STATIC_ROUTES];
+    char* base_directory; 
     unsigned int route_count;
     unsigned int static_route_count;
     unsigned int max_request_size;

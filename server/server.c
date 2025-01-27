@@ -17,7 +17,7 @@ server* init() {
     server->max_request_size = 4096;
     server->port = 8080;
     server->max_sockets = 10;
-    strcpy(server->base_directory, "public");
+    server->base_directory = "public";
 
     SERVER = server;
     return server;
@@ -35,7 +35,7 @@ void register_route(char* path, char* method, route_handler handler) {
 
     //check if route has already been registered
     for (unsigned int i = 0; i < SERVER->route_count; i++) {
-        if (!strcmp(SERVER->routes[i].path, path)) {
+        if (!strcmp(SERVER->routes[i]->path, path)) {
             printf("Route \"%s\" already exists\n", path);
             return;
         }
@@ -48,7 +48,7 @@ void register_route(char* path, char* method, route_handler handler) {
     r->method = method;
 
     //add to server
-    SERVER->routes[SERVER->route_count] = *r;
+    SERVER->routes[SERVER->route_count] = r;
     SERVER->route_count++;
     return;
 }
@@ -56,7 +56,7 @@ void register_route(char* path, char* method, route_handler handler) {
 /**
 * Regsister a static route. We're still working on this one
 */
-void register_static(char* path) {
+void register_static(char* path, char* url_prefix) {
     if (SERVER->static_route_count >= MAX_STATIC_ROUTES) {
         printf("Max static routes reached\n");
         return;
@@ -101,6 +101,8 @@ void* handle_request(void* client_sock_ptr) {
         return NULL;
     }
 
+    // REQUEST PASSED INITIAL CHECKS
+
     //set this to 1 if we hit an endpoint but the method is not allowed
     int method_flag = 0;
 
@@ -118,7 +120,8 @@ void* handle_request(void* client_sock_ptr) {
                 continue;
             }
 
-            SERVER->routes[i].handler(req, res);
+            //call the actual handler
+            SERVER->routes[i]->handler(req, res);
             free_request(req);
             return NULL;
         }
