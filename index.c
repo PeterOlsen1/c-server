@@ -7,6 +7,7 @@ void hello_world(request* req, response* res) {
 int main() {
     server* server = init();
     register_route("/", GET, hello_world);
+    register_static("/css");
     start_server(server);
 
     return 0;

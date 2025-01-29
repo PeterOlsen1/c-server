@@ -39,7 +39,6 @@ typedef struct {
 
 typedef struct {
     char* path;
-    char* url_prefix;
 } static_route;
 
 // define server object

@@ -32,6 +32,11 @@ typedef struct {
 } response;
 
 /**
+ * Frees a repsposne object
+ */
+void free_response(response* res);
+
+/**
  * Create a response to send to the client. This method is to be called one all is done.
  */
 char* make_response(char* status, char* content_type, int content_length, char* body);
