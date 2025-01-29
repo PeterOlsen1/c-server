@@ -64,6 +64,11 @@ server* init();
 void register_route(char* path, char* method, route_handler handler);
 
 /**
+ * Register a static route with the server
+ */
+void register_static(char* path);
+
+/**
  * Handle a request from a client on the given
  * socket number. Calls functions from 
  * the "request" and "response" modules to get

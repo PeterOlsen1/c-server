@@ -64,7 +64,7 @@ void register_static(char* path) {
 
     //check if route has already been registered
     for (unsigned int i = 0; i < SERVER->static_route_count; i++) {
-        if (!strcmp(SERVER->static_routes[i], path)) {
+        if (!strcmp(SERVER->static_routes[i]->path, path)) {
             printf("Route \"%s\" already exists\n", path);
             return;
         }
@@ -97,23 +97,23 @@ void* handle_request(void* client_sock_ptr) {
         return NULL;
     }
 
-    request* req = parse_request(buffer, client_sock);
-    if (!req) {
-        printf("Bad request!\n");
-        send_error(client_sock, BAD_REQUEST, "Bad request");
-        close(client_sock);
-        return NULL;
-    }
-
     //create response object
     response* res = malloc(sizeof(response));
     if (!res) {
         perror("Failed to allocate memory for response");
-        free_request(req);
         close(client_sock);
         return NULL;
     }
     res->client_sock = client_sock;
+
+    // parse the request
+    request* req = parse_request(buffer, client_sock);
+    if (!req) {
+        printf("Bad request!\n");
+        send_error(res, BAD_REQUEST, "Bad request");
+        close(client_sock);
+        return NULL;
+    }
 
     log_request(req);
 
@@ -124,8 +124,9 @@ void* handle_request(void* client_sock_ptr) {
         if (!r || !r->path || !req->path) {
             continue;
         }
-
+        
         if (strcmp(req->path, r->path) == 0) {
+            //incorrect method, keep going and send 405 if we don't match
             if (strcmp(req->method, r->method)) {
                 method_flag = 1;
                 continue;
@@ -155,7 +156,7 @@ void* handle_request(void* client_sock_ptr) {
     if (method_flag) {
         send_error(res, METHOD_NOT_ALLOWED, "Method not allowed");
     } else {
-        send_404(client_sock);
+        send_404(res);
     }
 
     free_request(req);

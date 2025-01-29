@@ -81,7 +81,7 @@ void send_file(response* res, char* path);
 /**
  * Send a binary file to the client
  */
-void send_binary(int client_sock, char* path);
+void send_binary(response* res, char* path);
 
 
 // SEND ERRORS TO THE CLIENT 
