@@ -33,7 +33,7 @@ server/response/response.o: server/response/response.c server/response/response.
 # 	@./test_response
 # 	@rm -f test_response
 
-json: server/json/json.c
+json: server/json/json.c server/json/json.h
 	$(CC) $(CFLAGS) server/json/json.c -o json
 	./json
 

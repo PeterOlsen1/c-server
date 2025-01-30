@@ -5,11 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-// #include <limits.h>
-
 
 #define JSON_MAX_LENGTH 150
-#define MAX_HASH_POWER = 3
+#define MAX_HASH_POWER 3
+#define MAX_JSON_STRING_LENGTH 4096
 
 /**
  * Define enum type so we can keep
@@ -42,7 +41,7 @@ typedef struct {
  * so that we can get that information when traversing the
  * object later
  */
-typedef struct {
+typedef struct JSON_Entry {
     JSON_Type type;
     struct JSON_Entry* next;
     char* key;
