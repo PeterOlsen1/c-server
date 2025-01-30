@@ -8,7 +8,9 @@ request* parse_request(char* buffer, int client_sock) {
     request* req = malloc(sizeof(request));
     if (!req) {
         printf("Failed to allocate memory for request object\n");
-        send_error(client_sock, INTERNAL_SERVER_ERROR, "Failed to allocate memory for request object");
+        response* res = init_response(client_sock);
+        send_error(res, INTERNAL_SERVER_ERROR, "Failed to allocate memory for request object");
+        free(res);
         return NULL;
     }
 
@@ -26,7 +28,9 @@ request* parse_request(char* buffer, int client_sock) {
     if (!buffer_copy) {
         printf("Failed to allocate memory for buffer copy\n");
         free(req);
-        send_error(client_sock, INTERNAL_SERVER_ERROR, "Failed to allocate memory for buffer copy");
+        response* res = init_response(client_sock);
+        send_error(res, INTERNAL_SERVER_ERROR, "Failed to allocate memory for buffer copy");
+        free(res);
         return NULL;
     }
 
@@ -37,7 +41,9 @@ request* parse_request(char* buffer, int client_sock) {
         printf("Failed to parse request\n");
         free(req);
         free(buffer_copy);
-        send_error(client_sock, BAD_REQUEST, "Failed to parse request");
+        response* res = init_response(client_sock);
+        send_error(res, BAD_REQUEST, "Failed to parse request");
+        free(res);
         return NULL;
     }
     
@@ -70,7 +76,9 @@ request* parse_request(char* buffer, int client_sock) {
         printf("Content length exceeds maximum size\n");
         free(req);
         free(buffer_copy);
-        send_error(client_sock, TOO_LARGE, "Content length exceeds maximum size");
+        response* res = init_response(client_sock);
+        send_error(res, TOO_LARGE, "Content length exceeds maximum size");
+        free(res);
         return NULL;
     }
 
@@ -80,7 +88,9 @@ request* parse_request(char* buffer, int client_sock) {
         printf("Failed to find request body\n");
         free(req);
         free(buffer_copy);
-        send_error(client_sock, BAD_REQUEST, "Failed to find body");
+        response* res = init_response(client_sock);
+        send_error(res, BAD_REQUEST, "Failed to find body");
+        free(res);
         return NULL;
     }
 

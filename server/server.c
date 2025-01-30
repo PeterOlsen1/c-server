@@ -136,6 +136,7 @@ void* handle_request(void* client_sock_ptr) {
             r->handler(req, res);
             free_request(req);
             free_response(res);
+            close(client_sock);
             return NULL;
         }
     }
@@ -148,6 +149,7 @@ void* handle_request(void* client_sock_ptr) {
             send_file(res, req->path);
             free_request(req);
             free_response(res);
+            close(client_sock);
             return NULL;
         }
     }
@@ -161,6 +163,7 @@ void* handle_request(void* client_sock_ptr) {
 
     free_request(req);
     free_response(res);
+    close(client_sock);
     return NULL;
 }
 

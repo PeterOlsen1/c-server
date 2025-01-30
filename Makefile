@@ -33,6 +33,10 @@ server/response/response.o: server/response/response.c server/response/response.
 # 	@./test_response
 # 	@rm -f test_response
 
+json: server/json/json.c
+	$(CC) $(CFLAGS) server/json/json.c -o json
+	./json
+
 
 clean:
 	@rm -f *.o request/*.o response/*.o server/server.o index

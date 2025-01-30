@@ -38,6 +38,11 @@ typedef struct {
 void free_response(response* res);
 
 /**
+ * Initialize a response object.
+ */
+response* init_response(int client_sock);
+
+/**
  * Create a response to send to the client. This method is to be called one all is done.
  */
 char* make_response(char* status, char* content_type, int content_length, char* body);

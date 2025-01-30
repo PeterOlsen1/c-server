@@ -8,6 +8,15 @@ void free_response(response* res) {
     return;
 }
 
+response* init_response(int client_sock) {
+    response* res = malloc(sizeof(response));
+    if (!res) {
+        return NULL;
+    }
+    res->client_sock = client_sock;
+    return res;
+}
+
 /**
  * Create a response to send to the client. This method is to be called one all is done.
  */
@@ -64,7 +73,6 @@ void send_text(response* res, char* text) {
 
     char* resp = make_response(OK, "text/plain", strlen(text), text);
     send(client_sock, resp, strlen(resp), 0);
-    close(client_sock);
     return;
 }
 
@@ -73,7 +81,6 @@ void send_json(response* res, char* json) {
 
     char* resp = make_response(OK, "application/json", strlen(json), json);
     send(client_sock, resp, strlen(resp), 0);
-    close(client_sock);
     return;
 }
 
@@ -96,27 +103,48 @@ void send_template(response* res, char* path, ...) {
     //read file into response body
     char* file_content = malloc(fsize + 1);
     fread(file_content, 1, fsize, file);
-    file_content[fsize + 1] = '\0';
+    file_content[fsize] = '\0';
 
-    //get the size of all args
-    size_t args_size = 0;
-    while (1) {
-        char* token = va_arg(args, char*);
-        if (!token) {
-            break;
-        }
-        args_size += strlen(token);
+    //count the number of placeholders
+    int placeholder_count = 0;
+    char* tmp = file_content;
+    while ((tmp = strstr(tmp, "%s")) != NULL) {
+        placeholder_count++;
+        tmp += 2; //move forward 2 chars past %s
     }
 
+    printf("Placeholders: %d\n", placeholder_count);
+
+    //grab that many argumnets
+    char* tokens[placeholder_count];
+    size_t args_size = 0;
+    for (int i = 0; i < placeholder_count; i++) {
+        tokens[i] = va_arg(args, char*);
+        args_size += strlen(tokens[i]);
+    }
+    //reset the va_list pointer back to the beginning
+    va_start(args, path);
+
     //format the response body
-    size_t resp_body_size = fsize + args_size - 1;
+    size_t resp_body_size = fsize + args_size + 1;
     char* resp_body = malloc(resp_body_size);
-    if (snprintf(resp_body, resp_body_size, file_content, args) < 0) {
+    if (!resp_body) {
+        printf("Failed to allocate memory");
+        free(file_content);
+        fclose(file);
+        send_500(res);
+        va_end(args);
+        return;
+    }
+
+    //format!
+    if (vsnprintf(resp_body, resp_body_size, file_content, args) < 0) {
+        printf("Failed to format body\n");
         send_500(res);
         free(resp_body);
         free(file_content);
-        close(res->client_sock);
         fclose(file);
+        va_end(args);
         return;
     }
 
@@ -134,7 +162,7 @@ void send_template(response* res, char* path, ...) {
     free(file_content);
     free(resp);
     fclose(file);
-    close(res->client_sock);
+    va_end(args);
     return;
 }
 
@@ -215,7 +243,6 @@ void send_file(response* res, char* path) {
     free(resp);
     free(file_path);
     fclose(file);
-    close(client_sock);
     return;
 }
 
@@ -263,7 +290,6 @@ void send_binary(response* res, char* path) {
     //housekeeping
     free(body);
     fclose(file);
-    close(client_sock);
     return;
 }
 
@@ -290,7 +316,7 @@ void send_error(response* res, char* status, char* body) {
     //read file into response body
     char* file_content = malloc(fsize + 1);
     fread(file_content, 1, fsize, file);
-    file_content[fsize + 1] = '\0';
+    file_content[fsize] = '\0';
 
     //format the response body
     size_t resp_body_size = fsize + strlen(body) - 1;
@@ -308,7 +334,6 @@ void send_error(response* res, char* status, char* body) {
     free(file_content);
     free(resp);
     fclose(file);
-    close(client_sock);
     return;
 }
 
@@ -330,6 +355,5 @@ void send_500(response* res) {
     char* body = "<h1>500 Internal Server Error</h1>";
     char* resp = make_response(INTERNAL_SERVER_ERROR, "text/html", strlen(body), body);
     send(client_sock, resp, strlen(resp), 0);
-    close(client_sock);
     return;
 }
