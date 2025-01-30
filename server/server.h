@@ -39,7 +39,6 @@ typedef struct {
 
 typedef struct {
     char* path;
-    char* url_prefix;
 } static_route;
 
 // define server object
@@ -63,6 +62,11 @@ server* init();
  * Register a route with the server
  */
 void register_route(char* path, char* method, route_handler handler);
+
+/**
+ * Register a static route with the server
+ */
+void register_static(char* path);
 
 /**
  * Handle a request from a client on the given

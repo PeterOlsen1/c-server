@@ -11,6 +11,7 @@ void template_test(request* req, response* res) {
 int main() {
     server* server = init();
     register_route("/", GET, hello_world);
+    register_static("/css");
     register_route("/template", GET, template_test);
     start_server(server);
 

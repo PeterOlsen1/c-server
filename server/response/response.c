@@ -1,6 +1,14 @@
 #include "response.h"
 
 /**
+ * Frees a repsposne object
+ */
+void free_response(response* res) {
+    free(res);
+    return;
+}
+
+/**
  * Create a response to send to the client. This method is to be called one all is done.
  */
 char* make_response(char* status, char* content_type, int content_length, char* body) {
@@ -139,7 +147,7 @@ void send_file(response* res, char* path) {
     int client_sock = res->client_sock;
     
     if (path == NULL) {
-        send_404(client_sock);
+        send_404(res);
         return;
     }
 
@@ -156,16 +164,15 @@ void send_file(response* res, char* path) {
 
     //grab path extension
     char* ext = strrchr(path, '.');
-
     if (!ext) {
-        send_404(client_sock);
+        send_404(res);
         free(file_path);
         return;
     }
 
     //check if file is binary
     if (strstr((BINARY_FILES), ext)) {
-        send_binary(client_sock, file_path);
+        send_binary(res, file_path);
         free(file_path);
         return;
     }
@@ -174,7 +181,7 @@ void send_file(response* res, char* path) {
     FILE* file = fopen(file_path, "r");
     if (!file) {
         printf("Failed to open file\n");
-        send_404(client_sock);
+        send_404(res);
         free(file_path);
         return;
     }
@@ -188,7 +195,7 @@ void send_file(response* res, char* path) {
     char* body = malloc(fsize + 1);
     if (!body) {
         printf("Failed to allocate memory for resposne body\n");
-        send_500(client_sock);
+        send_500(res);
         return;
     }
     fread(body, 1, fsize, file);
@@ -222,11 +229,12 @@ void send_file(response* res, char* path) {
  * Since we can't send binary data and text data at the same time,
  * we send them with separate socket calls.
  */
-void send_binary(int client_sock, char* path) {
+void send_binary(response* res, char* path) {
+    int client_sock = res->client_sock;
     FILE* file = fopen(path, "rb");
 
     if (!file) {
-        send_404(client_sock);
+        send_404(res);
         return;
     }
 
@@ -270,7 +278,7 @@ void send_error(response* res, char* status, char* body) {
 
     if (!file) {
         printf("Failed to open file\n");
-        send_500(client_sock);
+        send_500(res);
         return;
     }
 
@@ -309,8 +317,7 @@ void send_error(response* res, char* status, char* body) {
  * Send a 404 response to the client
  */
 void send_404(response* res) {
-    int client_sock = res->client_sock;
-    send_error(client_sock, NOT_FOUND, "<h1>404 Not Found</h1>");
+    send_error(res, NOT_FOUND, "<h1>404 Not Found</h1>");
     return;
 }
 

@@ -33,6 +33,11 @@ typedef struct {
 } response;
 
 /**
+ * Frees a repsposne object
+ */
+void free_response(response* res);
+
+/**
  * Create a response to send to the client. This method is to be called one all is done.
  */
 char* make_response(char* status, char* content_type, int content_length, char* body);
@@ -84,7 +89,7 @@ void send_file(response* res, char* path);
 /**
  * Send a binary file to the client
  */
-void send_binary(int client_sock, char* path);
+void send_binary(response* res, char* path);
 
 
 // SEND ERRORS TO THE CLIENT 

@@ -6,7 +6,7 @@ int server_running = 0;
 
 server* init() {
     printf("Server size: %lu\n", sizeof(server));
-    server* server = malloc(sizeof(server));
+    server* server = malloc(sizeof(*server));
 
     if (!server) {
         printf("Failed to allocate memory for server object\n");
@@ -42,7 +42,7 @@ void register_route(char* path, char* method, route_handler handler) {
     }
 
     //make object
-    route* r = malloc(sizeof(route));
+    route* r = malloc(sizeof(*r));
     r->path = path;
     r->handler = handler;
     r->method = method;
@@ -54,9 +54,9 @@ void register_route(char* path, char* method, route_handler handler) {
 }
 
 /**
-* Regsister a static route. We're still working on this one
+* Regsister a static route
 */
-void register_static(char* path, char* url_prefix) {
+void register_static(char* path) {
     if (SERVER->static_route_count >= MAX_STATIC_ROUTES) {
         printf("Max static routes reached\n");
         return;
@@ -64,14 +64,17 @@ void register_static(char* path, char* url_prefix) {
 
     //check if route has already been registered
     for (unsigned int i = 0; i < SERVER->static_route_count; i++) {
-        if (!strcmp(SERVER->static_routes[i], path)) {
+        if (!strcmp(SERVER->static_routes[i]->path, path)) {
             printf("Route \"%s\" already exists\n", path);
             return;
         }
     }
 
+    static_route* r = malloc(sizeof(static_route));
+    r->path = path;
+
     //add to server
-    SERVER->static_routes[SERVER->static_route_count] = path;
+    SERVER->static_routes[SERVER->static_route_count] = r;
     SERVER->static_route_count++;
     return;
 }
@@ -82,71 +85,83 @@ void register_static(char* path, char* url_prefix) {
  * server listening loop
  */
 void* handle_request(void* client_sock_ptr) {
-    int client_sock = *(int*)client_sock_ptr; //cast to int pointer and dereference
+    int client_sock = *(int*)client_sock_ptr; // Cast to int pointer and dereference
     free(client_sock_ptr);
 
-    //read and parse request data
+    // Read and parse request data
     char buffer[BUFFER_SIZE];
-    read(client_sock, buffer, BUFFER_SIZE);
-    request* req = parse_request(buffer, client_sock);
-    response* res = malloc(sizeof(response));
-    res->client_sock = client_sock;
-
-    log_request(req);
-
-    //invalid request was already logged. return
-    if (!req) {
-        printf("Bad request!\n");
-        send_error(client_sock, BAD_REQUEST, "Bad request");
+    ssize_t bytes_read = read(client_sock, buffer, BUFFER_SIZE);
+    if (bytes_read < 0) {
+        perror("Failed to read from socket");
+        close(client_sock);
         return NULL;
     }
 
-    // REQUEST PASSED INITIAL CHECKS
+    //create response object
+    response* res = malloc(sizeof(response));
+    if (!res) {
+        perror("Failed to allocate memory for response");
+        close(client_sock);
+        return NULL;
+    }
+    res->client_sock = client_sock;
 
-    //set this to 1 if we hit an endpoint but the method is not allowed
+    // parse the request
+    request* req = parse_request(buffer, client_sock);
+    if (!req) {
+        printf("Bad request!\n");
+        send_error(res, BAD_REQUEST, "Bad request");
+        close(client_sock);
+        return NULL;
+    }
+
+    log_request(req);
+
+    // find the route for this request
     int method_flag = 0;
-
-    //find the router for this file
     for (unsigned int i = 0; i < SERVER->route_count; i++) {
-        route* r = &SERVER->routes[i];
-        if (!r) {
+        route* r = SERVER->routes[i];
+        if (!r || !r->path || !req->path) {
             continue;
         }
-
+        
         if (strcmp(req->path, r->path) == 0) {
-            //not the correct method
+            //incorrect method, keep going and send 405 if we don't match
             if (strcmp(req->method, r->method)) {
                 method_flag = 1;
                 continue;
             }
 
-            //call the actual handler
-            SERVER->routes[i]->handler(req, res);
+            // Call the handler
+            r->handler(req, res);
             free_request(req);
+            free_response(res);
             return NULL;
         }
     }
 
-
-    //check static file request
+    // check for static file request. this may be a little flawed
+    //since we should see if the "path" starts with the "sr->path"
     for (unsigned int i = 0; i < SERVER->static_route_count; i++) {
-        if (strcmp(req->path, SERVER->static_routes[i]) == 0) {
+        static_route* sr = SERVER->static_routes[i];
+        if (sr && sr->path && strstr(req->path, sr->path)) {
             send_file(res, req->path);
             free_request(req);
+            free_response(res);
             return NULL;
         }
     }
 
-    //method wasn't allowed
+    // Handle errors
     if (method_flag) {
         send_error(res, METHOD_NOT_ALLOWED, "Method not allowed");
-        free_request(req);
-        return NULL;
+    } else {
+        send_404(res);
     }
 
-    //couldn't find the route, 404!!!!
-    send_404(client_sock);
     free_request(req);
+    free_response(res);
+    return NULL;
 }
 
 
