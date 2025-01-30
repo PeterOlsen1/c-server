@@ -81,19 +81,34 @@ char* stringify(JSON* obj) {
                 char* inner_string = NULL;
                 switch (ptr->type) {
                     case STRING: {
+                        //format the inner string
                         size_t inner_size = strlen(ptr->key) + strlen(ptr->value) + 9;
                         inner_string = malloc(inner_size);
                         snprintf(inner_string, inner_size, "\"%s\":\"%s\"", ptr->key, (char*)ptr->value);
                         break;
                     }
                     case INT: {
-                        size_t inner_size = strlen(ptr->key) + strlen(ptr->value) + 9;
+                        //get the size of the number
+                        char* int_string = malloc(10);
+                        snprintf(int_string, 10, "%d", *(int*)ptr->value);
+                        size_t inner_size = strlen(ptr->key) + strlen(int_string) + 9;
+
+                        //format the inner string
                         inner_string = malloc(inner_size);
-                        snprintf(inner_string, 11, "\"%s\":%d", ptr->key, *(int*)ptr->value);
+                        snprintf(inner_string, inner_size, "\"%s\":%d", ptr->key, *(int*)ptr->value);
+                        free(int_string);
                         break;
                     }
                     case DOUBLE: {
-                        snprintf(inner_string, 11, "\"%s\":%f", ptr->key, *(double*)ptr->value);
+                        //get the size of the number
+                        char* double_string = malloc(32);
+                        snprintf(double_string, 32, "%lf", *(double*)ptr->value);
+                        size_t inner_size = strlen(ptr->key) + strlen(double_string) + 9;
+
+                        //format the inner string
+                        inner_string = malloc(inner_size);
+                        snprintf(inner_string, inner_size, "\"%s\":%f", ptr->key, *(double*)ptr->value);
+                        free(double_string);
                         break;
                     }
                     default:
