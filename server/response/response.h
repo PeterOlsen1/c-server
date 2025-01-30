@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #define BINARY_FILES ".jpg .jpeg .png .gif .ico"
 
@@ -67,6 +68,13 @@ void send_text(response* res, char* text);
  */
 void send_json(response* res, char* json);
 
+/**
+ * Send a template file to the client.
+ * 
+ * The number of extra arguments should correspond
+ * to the number of placeholders in the template file
+ */
+void send_template(response* res, char* path, ...);
 
 /**
  * Send an arbitrary file to the client. (NOT BINARY YET)

@@ -69,6 +69,66 @@ void send_json(response* res, char* json) {
     return;
 }
 
+void send_template(response* res, char* path, ...) {
+    va_list args;
+    va_start(args, path);
+
+    //open file
+    FILE* file = fopen(path, "r");
+    if (!file) {
+        send_404(res);
+        return;
+    }
+
+    //get file size
+    fseek(file, 0, SEEK_END);
+    int fsize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    //read file into response body
+    char* file_content = malloc(fsize + 1);
+    fread(file_content, 1, fsize, file);
+    file_content[fsize + 1] = '\0';
+
+    //get the size of all args
+    size_t args_size = 0;
+    while (1) {
+        char* token = va_arg(args, char*);
+        if (!token) {
+            break;
+        }
+        args_size += strlen(token);
+    }
+
+    //format the response body
+    size_t resp_body_size = fsize + args_size - 1;
+    char* resp_body = malloc(resp_body_size);
+    if (snprintf(resp_body, resp_body_size, file_content, args) < 0) {
+        send_500(res);
+        free(resp_body);
+        free(file_content);
+        close(res->client_sock);
+        fclose(file);
+        return;
+    }
+
+    //get mime type
+    char* mime = get_mime_type(path);
+
+    //make response
+    char* resp = make_response(OK, mime, resp_body_size, resp_body);
+
+    //send it!!!
+    send(res->client_sock, resp, strlen(resp), 0);
+
+    //housekeeping
+    free(resp_body);
+    free(file_content);
+    free(resp);
+    fclose(file);
+    close(res->client_sock);
+    return;
+}
 
 /**
  * Send an arbitrary file to the client.
