@@ -56,4 +56,8 @@ int insert(JSON* obj, JSON_Type type, char* key, void* value);
 
 char* stringify(JSON* obj);
 
+char* list_stringify(list_t* list);
+
+void free_json(JSON* obj);
+
 #endif // JSON_H
