@@ -6,8 +6,8 @@ all: run
 run: clean server_compile
 	@./index
 
-server_compile: index.o server/server.o server/response/response.o server/request/request.o
-	@$(CC) $(CFLAGS) -o index index.o server/server.o server/response/response.o server/request/request.o
+server_compile: index.o server/server.o server/response/response.o server/request/request.o server/json/json.o
+	@$(CC) $(CFLAGS) -o index index.o server/server.o server/response/response.o server/request/request.o server/json/json.o
 
 index.o: index.c
 	@$(CC) $(CFLAGS) -c index.c
@@ -20,6 +20,9 @@ server/request/request.o: server/request/request.c server/request/request.h
 
 server/response/response.o: server/response/response.c server/response/response.h
 	@$(CC) $(CFLAGS) -c server/response/response.c -o server/response/response.o
+
+server/json/json.o: server/json/json.c server/json/json.h
+	@$(CC) $(CFLAGS) -c server/json/json.c -o server/json/json.o
 
 
 # testing scripts

@@ -58,6 +58,8 @@ char* stringify(JSON* obj);
 
 char* list_stringify(list_t* list);
 
+int list_insert(list_t* list, JSON_Type type, void* value);
+
 void free_json(JSON* obj);
 
 #endif // JSON_H

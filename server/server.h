@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include "request/request.h"
 #include "response/response.h"
+#include "json/json.h"
 
 #define PORT 8080
 #define HOST "127.0.0.1"

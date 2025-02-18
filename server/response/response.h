@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../json/json.h"
 #include <sys/socket.h>
 #include <unistd.h>
 #include <stdarg.h>
@@ -75,6 +76,8 @@ void send_text(response* res, char* text);
 
 /**
  * Send a json response to the clinet.
+ * 
+ * THE USER MUST STRINGIFY THE JSON OBJECT THEMSELVES
  */
 void send_json(response* res, char* json);
 

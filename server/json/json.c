@@ -152,11 +152,11 @@ char* stringify(JSON* obj) {
                     case LIST: {
                         //recursively stringify the list
                         char* list_string = list_stringify((list_t*)ptr->value);
-                        size_t inner_size = strlen(list_string) + 3;
+                        size_t inner_size = strlen(ptr->key) + strlen(list_string) + 9;
 
                         //format the inner string
                         inner_string = malloc(inner_size);
-                        snprintf(inner_string, inner_size, "%s", list_string);
+                        snprintf(inner_string, inner_size, "\"%s\": %s", ptr->key, list_string);
                         free(list_string);
                         break;
                     }
@@ -228,7 +228,7 @@ char* list_stringify(list_t* list) {
 
                 //format the inner string
                 inner_string = malloc(inner_size);
-                snprintf(inner_string, inner_size, "%f", *(double*)ptr->value);
+                snprintf(inner_string, inner_size, "%lf", *(double*)ptr->value);
                 free(double_string);
                 break;
             }
@@ -292,31 +292,33 @@ void free_json(JSON* obj) {
     free(obj);
 }
 
-int main() {
-    // JSON* obj = malloc(sizeof(JSON));
-    // if (!obj) {
-    //     printf("bruh\n");
-    // }
+// int main() {
+//     JSON* obj = malloc(sizeof(JSON));
+//     if (!obj) {
+//         printf("bruh\n");
+//     }
 
-    // JSON* inner = malloc(sizeof(JSON));
-    // insert(inner, STRING, "inner key", "inner value");
-    // int inner_num = 2;
-    // insert(inner, INT, "inner int", &inner_num);
-    // insert(obj, OBJECT, "object key", inner);
+//     JSON* inner = malloc(sizeof(JSON));
+//     insert(inner, STRING, "inner key", "inner value");
+//     int inner_num = 2;
+//     insert(inner, INT, "inner int", &inner_num);
+//     insert(obj, OBJECT, "object key", inner);
 
-    int num = 1;
-    double db = 3.14159265359;
-    // insert(obj, STRING, "json key", "json value");
-    // insert(obj, INT, "int test", &num);
-    // char* string = stringify(obj);
-    // printf("Stringify: %s\n", string);
+//     int num = 1;
+//     double db = 3.14159265359;
+//     insert(obj, STRING, "json key", "json value");
+//     insert(obj, INT, "int test", &num);
 
-    list_t* list = malloc(sizeof(list_t));
-    list->size = 0;
-    list_insert(list, STRING, "string");
-    list_insert(list, INT, &num);
-    list_insert(list, DOUBLE, &db);
-    char* list_string = list_stringify(list);
-    printf("List Stringify: %s\n", list_string);
-    return 0;
-}
+//     list_t* list = malloc(sizeof(list_t));
+//     list->size = 0;
+//     list_insert(list, STRING, "string");
+//     list_insert(list, INT, &num);
+//     list_insert(list, DOUBLE, &db);
+//     char* list_string = list_stringify(list);
+//     // printf("List Stringify: %s\n", list_string);
+//     insert(obj, LIST, "list", list);
+
+//     char* string = stringify(obj);
+//     printf("Stringify: %s\n", string);
+//     return 0;
+// }
