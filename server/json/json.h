@@ -52,14 +52,44 @@ typedef struct {
     JSON_Entry* array[JSON_MAX_LENGTH];
 } JSON;
 
+/**
+ * Insert value of type type into obj at key
+ */
 int insert(JSON* obj, JSON_Type type, char* key, void* value);
 
+/**
+ * Stringify a JSON object
+ */
 char* stringify(JSON* obj);
 
+/**
+ * Stringify a dynamic list
+ */
 char* list_stringify(list_t* list);
 
+/**
+ * insert a value into a list
+ */
 int list_insert(list_t* list, JSON_Type type, void* value);
 
+/**
+ * Check if a list contains a given key
+ * 
+ * return 1 on success, 0 on failure
+ */
+int list_contains(list_t* list, char* key);
+
+/**
+ * Free a json object
+ */
 void free_json(JSON* obj);
+
+/**
+ * Get a value from a JSON object at key
+ * 
+ * YOU MUST CAST THE RETURNED VALUE TO THE CORRECT TYPE
+ * OR BAD THINGS WILL HAPPEN
+ */
+void* get(JSON* obj, char* key);
 
 #endif // JSON_H

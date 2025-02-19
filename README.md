@@ -37,13 +37,12 @@ int main() {
 ```
 
 TODO:
-* Make sure body parsing does not take any extra characters with it
-* Log requests properly to the console
+* overhaul request body / header parsing into a json object
 
 * Static routes
 * Differnet request types
   * parsing post requests (mentioned earlier)
   * allow for endpoint definition of what to do in different reuqest types
-* JSON?
-  * JSON module from scratch? (essentially hash table)
-* Templates?
+* Better template syntax?
+* Cookies?
+* Blueprints? modularity in c may be hard

@@ -41,6 +41,7 @@ void json_test(request* req, response* res) {
 int main() {
     server* server = init();
     register_route("/", GET, hello_world);
+    register_route("/", POST, hello_world);
     register_route("/template", GET, template_test);
     register_static("/css");
     register_route("/json", GET, json_test);

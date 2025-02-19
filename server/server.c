@@ -35,8 +35,8 @@ void register_route(char* path, char* method, route_handler handler) {
 
     //check if route has already been registered
     for (unsigned int i = 0; i < SERVER->route_count; i++) {
-        if (!strcmp(SERVER->routes[i]->path, path)) {
-            printf("Route \"%s\" already exists\n", path);
+        if (!strcmp(SERVER->routes[i]->path, path) && !strcmp(SERVER->routes[i]->method, method)) {
+            printf("Route \"%s\" with method \"%s\" already exists\n", path, method);
             return;
         }
     }
@@ -124,6 +124,7 @@ void* handle_request(void* client_sock_ptr) {
         if (!r || !r->path || !req->path) {
             continue;
         }
+
         
         if (strcmp(req->path, r->path) == 0) {
             //incorrect method, keep going and send 405 if we don't match
@@ -180,6 +181,9 @@ void close_server() {
 
 /**
  * Start server and start accepting requests
+ * 
+ * This is where all of the socket overhead happens.
+ * This is also where the main listening loop takes place
  */
 int start_server() {
     if (server_running) {

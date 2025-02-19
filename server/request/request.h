@@ -4,9 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "../response/response.h"
+#include "../json/json.h"
 
 #define BODY_MAX_SIZE 4096
+#define LOGGING_ENABLED 0
 
 #define GET "GET"
 #define POST "POST"
@@ -23,13 +26,10 @@
  */
 typedef struct {
     char *method;
-    char *content_type;
     char *path;
     char *version;
-    char *host;
-    char *connection;
-    char *user_agent;
-    unsigned int content_length;
+    JSON* headers;
+    list_t* all_headers;
     int socket;
     char *body;
 } request;

@@ -1,45 +1,39 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Irequest
+LDFLAGS = -lm
 
-all: run
+# variables
+SRC_DIR = server
+RESPONSE_DIR = $(SRC_DIR)/response
+REQUEST_DIR = $(SRC_DIR)/request
+JSON_DIR = $(SRC_DIR)/json
 
-run: clean server_compile
-	@./index
+OBJ = index.o \
+      $(SRC_DIR)/server.o \
+      $(RESPONSE_DIR)/response.o \
+      $(REQUEST_DIR)/request.o \
+      $(JSON_DIR)/json.o
 
-server_compile: index.o server/server.o server/response/response.o server/request/request.o server/json/json.o
-	@$(CC) $(CFLAGS) -o index index.o server/server.o server/response/response.o server/request/request.o server/json/json.o
+TARGET = index
 
-index.o: index.c
-	@$(CC) $(CFLAGS) -c index.c
+run: $(TARGET)
+	./$(TARGET)
+	
+all: $(TARGET)
 
-server/server.o: server/server.c server/response/response.h server/request/request.h
-	@$(CC) $(CFLAGS) -c server/server.c -o server/server.o
-
-server/request/request.o: server/request/request.c server/request/request.h
-	@$(CC) $(CFLAGS) -c server/request/request.c -o server/request/request.o
-
-server/response/response.o: server/response/response.c server/response/response.h
-	@$(CC) $(CFLAGS) -c server/response/response.c -o server/response/response.o
-
-server/json/json.o: server/json/json.c server/json/json.h
-	@$(CC) $(CFLAGS) -c server/json/json.c -o server/json/json.o
+$(TARGET): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)
 
 
-# testing scripts
-# test_request: clean
-# 	@$(CC) request/request.c -o test_request
-# 	@./test_request
-# 	@rm -f test_request
+# $< refers to the c file
+# $@ refers to the .o file
+# this means that all .o files depend on their .c file
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# test_response: clean
-# 	@$(CC) response/response.c -o test_response
-# 	@./test_response
-# 	@rm -f test_response
-
-json: server/json/json.c server/json/json.h
-	$(CC) $(CFLAGS) server/json/json.c -o json
+json: $(JSON_DIR)/json.o
+	$(CC) $(CFLAGS) $< -o json
 	./json
 
-
 clean:
-	@rm -f *.o request/*.o response/*.o server/server.o index
+	@rm -f $(OBJ) $(TARGET) json

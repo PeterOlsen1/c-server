@@ -280,6 +280,39 @@ char* list_stringify(list_t* list) {
     return out;
 }
 
+int list_contains(list_t* list, char* key) {
+    if (!list || !key) {
+        return 0;
+    }
+
+    node_t* ptr = list->head;
+    while (ptr) {
+        if (!strcmp(ptr->value, key)) {
+            return 1;
+        }
+        ptr = ptr->next;
+    }
+
+    return 0;
+}
+
+void* get(JSON* obj, char* key) {
+    if (!obj || !key) {
+        return NULL;
+    }
+
+    int idx = hash(key);
+    JSON_Entry* entry = obj->array[idx];
+    while (entry) {
+        if (!strcmp(entry->key, key)) {
+            return entry->value;
+        }
+        entry = entry->next;
+    }
+
+    return NULL;
+}
+
 void free_json(JSON* obj) {
     for (int i = 0; i < JSON_MAX_LENGTH; i++) {
         JSON_Entry* ptr = obj->array[i];
