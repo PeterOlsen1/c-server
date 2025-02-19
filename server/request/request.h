@@ -29,7 +29,6 @@ typedef struct {
     char *path;
     char *version;
     JSON* headers;
-    list_t* all_headers;
     int socket;
     char *body;
 } request;

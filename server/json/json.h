@@ -63,6 +63,11 @@ int insert(JSON* obj, JSON_Type type, char* key, void* value);
 char* stringify(JSON* obj);
 
 /**
+ * Check if obj contains key
+ */
+int contains(JSON* obj, char* key);
+
+/**
  * Stringify a dynamic list
  */
 char* list_stringify(list_t* list);

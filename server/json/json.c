@@ -64,6 +64,23 @@ int insert(JSON* obj, JSON_Type type, char* key, void* value) {
     }
 }
 
+int contains(JSON* obj, char* key) {
+    if (!obj || !key) {
+        return 0;
+    }
+
+    int idx = hash(key);
+    JSON_Entry* entry = obj->array[idx];
+    while (entry) {
+        if (!strcmp(entry->key, key)) {
+            return 1;
+        }
+        entry = entry->next;
+    }
+
+    return 0;
+}
+
 int list_insert(list_t* list, JSON_Type type, void* value) {
     if (!list || !value) {
         return -1;
