@@ -30,7 +30,8 @@ request* parse_request(char* buffer, int client_sock) {
         return NULL;
     }
 
-    const char* delim = "\r\n";
+    //leave delim as \n and not \n\r so that we can keep line before body
+    const char* delim = "\n";
     char* line = strtok(buffer_copy, delim);
 
     if (!line) {
@@ -50,20 +51,17 @@ request* parse_request(char* buffer, int client_sock) {
     //extract more info from the request
     while ((line = strtok(NULL, delim)) != NULL) {
         printf("Line: %s\n", line);
-
-        if (strlen(line) == 0) {
-            printf("Empty line\n");
-            continue;
-        }
-
         //next line is body
-        if (strstr(line, "\n")) {
-            printf("Next line is body!!!!!!!!!!!!\n");
+        if (strcmp(line, "\r") == 0) {
             body_flag = 1;
             continue;
         }
 
-        // printf("%s\n", line);
+        //remove the \r at the end of the line
+        line[strlen(line) - 1] = '\0';
+
+        //EXTRACT INFO DYNAMICALLY AND PLACE IN
+        //req->headers, keep key and value
 
         // //find substrings and extract info accordingly
         // if (strstr(line, "Content-Type:")) {
