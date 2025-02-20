@@ -1,9 +1,9 @@
 #include "json.h"
 
-// JSON* init_json() {
-//     JSON* obj = malloc(sizeof(JSON));
-//     return obj;
-// }
+JSON* init_json() {
+    JSON* obj = malloc(sizeof(JSON));
+    return obj;
+}
 
 /**
  * Hash the given key, always assumed that the key is a string.
@@ -62,6 +62,21 @@ int insert(JSON* obj, JSON_Type type, char* key, void* value) {
         entry->next = new_entry;
         return 0;
     }
+}
+
+list_t* keys(JSON* obj) {
+    list_t* list = malloc(sizeof(list_t));
+    list->size = 0;
+    for (int i = 0; i < JSON_MAX_LENGTH; i++) {
+        JSON_Entry* ptr = obj->array[i];
+        while (ptr) {
+            list_insert(list, STRING, ptr->key);
+            ptr = ptr->next;
+            list->size++;
+        }
+    }
+
+    return list;
 }
 
 int contains(JSON* obj, char* key) {
@@ -336,10 +351,45 @@ void free_json(JSON* obj) {
         while (ptr) {
             JSON_Entry* temp = ptr;
             ptr = ptr->next;
+            switch (temp->type) {
+                case STRING:
+                    free(temp->value);
+                    break;
+                case OBJECT:
+                    free_json((JSON*)temp->value);
+                    break;
+                case LIST:
+                    free_list((list_t*)temp->value);
+                    break;
+                default:
+                    break;
+            }
             free(temp);
         }
     }
     free(obj);
+}
+
+void free_list(list_t* list) {
+    node_t* ptr = list->head;
+    while (ptr) {
+        node_t* temp = ptr;
+        ptr = ptr->next;
+        switch (temp->type) {
+            case STRING:
+                free(temp->value);
+                break;
+            case OBJECT:
+                free_json((JSON*)temp->value);
+                break;
+            case LIST:
+                free_list((list_t*)temp->value);
+                break;
+            default:
+                break;
+        }
+        free(temp);
+    }
 }
 
 // int main() {

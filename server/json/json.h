@@ -53,9 +53,20 @@ typedef struct {
 } JSON;
 
 /**
+ * Initialize a JSON object
+ */
+JSON* init_json();
+
+/**
  * Insert value of type type into obj at key
  */
 int insert(JSON* obj, JSON_Type type, char* key, void* value);
+
+/**
+ * Essentially the same as Object.keys() in JS
+ * Return a dynamic list of all obeject keys
+ */
+list_t* keys(JSON* obj);
 
 /**
  * Stringify a JSON object
@@ -88,6 +99,11 @@ int list_contains(list_t* list, char* key);
  * Free a json object
  */
 void free_json(JSON* obj);
+
+/**
+ * Free a dynamic list
+ */
+void free_list(list_t* list);
 
 /**
  * Get a value from a JSON object at key

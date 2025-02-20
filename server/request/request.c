@@ -47,14 +47,13 @@ request* parse_request(char* buffer, int client_sock) {
     //scan first line real quick
     sscanf(line, "%s %s %s", req->method, req->path, req->version);
 
-    int body_flag = 0;
+    JSON* headers = init_json();
+    req->headers = headers;
     //extract more info from the request
     while ((line = strtok(NULL, delim)) != NULL) {
-        printf("Line: %s\n", line);
         //next line is body
         if (strcmp(line, "\r") == 0) {
-            body_flag = 1;
-            continue;
+            break;
         }
 
         //remove the \r at the end of the line
@@ -63,19 +62,38 @@ request* parse_request(char* buffer, int client_sock) {
         //EXTRACT INFO DYNAMICALLY AND PLACE IN
         //req->headers, keep key and value
 
-        // //find substrings and extract info accordingly
-        // if (strstr(line, "Content-Type:")) {
-        //     sscanf(line, "Content-Type: %s", req->content_type);
-        // } else if (strstr(line, "Host:")) {
-        //     sscanf(line, "Host: %s", req->host);
-        // } else if (strstr(line, "Connection:")) {
-        //     sscanf(line, "Connection: %s", req->connection);
-        // } else if (strstr(line, "User-Agent:")) {
-        //     sscanf(line, "User-Agent: %s", req->user_agent);
-        // } else if (strstr(line, "Content-Length:")) {
-        //     sscanf(line, "Content-Length: %u", &req->content_length);
-        // }
-    }
+        //suddenly i care about memory efficiency
+        char* header = malloc(MAX_HEADER_LENGTH);
+        char* value = malloc(MAX_HEADER_LENGTH);
+        if (!header || !value) {
+            printf("Failed to allocate memory for header or value\n");
+            free(req);
+            free(buffer_copy);
+            response* res = init_response(client_sock);
+            send_error(res, INTERNAL_SERVER_ERROR, "Failed to allocate memory for header or value");
+            free(res);
+            return NULL;
+        }
+
+        //scan header and value
+        sscanf(line, "%s %s", header, value);
+        header = realloc(header, strlen(header) + 1);
+        value = realloc(value, strlen(value) + 1);
+        if (!header || !value) {
+            printf("Failed to reallocate memory for header or value\n");
+            free(req);
+            free(buffer_copy);
+            response* res = init_response(client_sock);
+            send_error(res, INTERNAL_SERVER_ERROR, "Failed to reallocate memory for header or value");
+            free(res);
+            return NULL;
+        }
+
+        header[strlen(header) - 1] = '\0'; //remove extra :
+
+        //insert header into headers object
+        insert(headers, STRING, header, value); 
+    }   
 
     // if (req->content_length > BODY_MAX_SIZE) {
     //     printf("Content length exceeds maximum size\n");
@@ -145,6 +163,7 @@ void free_request(request* req) {
     free(req->version);
     free(req->body);
     free(req);
+    free_json(req->headers);
 }
 
 /**

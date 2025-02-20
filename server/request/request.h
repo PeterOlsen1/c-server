@@ -10,6 +10,7 @@
 
 #define BODY_MAX_SIZE 4096
 #define LOGGING_ENABLED 0
+#define MAX_HEADER_LENGTH 1024
 
 #define GET "GET"
 #define POST "POST"
