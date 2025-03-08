@@ -2,6 +2,7 @@
 
 JSON* init_json() {
     JSON* obj = malloc(sizeof(JSON));
+    obj->array = malloc(JSON_MAX_LENGTH * sizeof(JSON_Entry*));
     return obj;
 }
 
@@ -36,7 +37,7 @@ int insert(JSON* obj, JSON_Type type, char* key, void* value) {
     if (!obj || !key || !value) {
         return -1;
     }
-    
+    printf("starting insert process\n");
     int idx = hash(key);
     JSON_Entry* entry = obj->array[idx];
 

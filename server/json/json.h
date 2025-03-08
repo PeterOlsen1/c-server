@@ -49,7 +49,7 @@ typedef struct JSON_Entry {
 } JSON_Entry;
 
 typedef struct {
-    JSON_Entry* array[JSON_MAX_LENGTH];
+    JSON_Entry** array;
 } JSON;
 
 /**

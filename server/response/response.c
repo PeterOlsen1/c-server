@@ -237,7 +237,7 @@ void send_file(response* res, char* path) {
 
     //send it!!!
     send(client_sock, resp, strlen(resp), 0);
-
+    
     //housekeeping
     free(body);
     free(resp);

@@ -90,6 +90,7 @@ void* handle_request(void* client_sock_ptr) {
 
     // Read and parse request data
     char buffer[BUFFER_SIZE];
+    memset(buffer, 0, BUFFER_SIZE);
     ssize_t bytes_read = read(client_sock, buffer, BUFFER_SIZE);
     if (bytes_read < 0) {
         perror("Failed to read from socket");
@@ -125,7 +126,6 @@ void* handle_request(void* client_sock_ptr) {
             continue;
         }
 
-        
         if (strcmp(req->path, r->path) == 0) {
             //incorrect method, keep going and send 405 if we don't match
             if (strcmp(req->method, r->method)) {
@@ -159,6 +159,7 @@ void* handle_request(void* client_sock_ptr) {
     if (method_flag) {
         send_error(res, METHOD_NOT_ALLOWED, "Method not allowed");
     } else {
+        printf("Sending 404\n");
         send_404(res);
     }
 
@@ -262,7 +263,7 @@ int start_server() {
             printf("Failed to accept client connection:\n%s", strerror(errno));
         }
         else {
-            int* client_sock_ptr = malloc(sizeof(int));
+            int* client_sock_ptr = malloc(sizeof(int)); //freed by the handle_request method
             *client_sock_ptr = client_sock;
             pthread_t thread_id;
             pthread_create(&thread_id, NULL, handle_request, client_sock_ptr);

@@ -37,6 +37,7 @@ int main() {
 ```
 
 TODO:
+* work on this at home so i have access to valgrind
 * overhaul request body / header parsing into a json object
 
 * Static routes

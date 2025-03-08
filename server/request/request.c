@@ -14,6 +14,8 @@ request* parse_request(char* buffer, int client_sock) {
         return NULL;
     }
 
+    printf("Allocating request object\n");
+
     req->method = malloc(10);
     req->path = malloc(100);
     req->version = malloc(10);
@@ -49,6 +51,7 @@ request* parse_request(char* buffer, int client_sock) {
 
     JSON* headers = init_json();
     req->headers = headers;
+
     //extract more info from the request
     while ((line = strtok(NULL, delim)) != NULL) {
         //next line is body
@@ -75,10 +78,13 @@ request* parse_request(char* buffer, int client_sock) {
             return NULL;
         }
 
+        printf("About to reallocate memory\n");
+        printf("%s\n", line);
         //scan header and value
         sscanf(line, "%s %s", header, value);
         header = realloc(header, strlen(header) + 1);
         value = realloc(value, strlen(value) + 1);
+
         if (!header || !value) {
             printf("Failed to reallocate memory for header or value\n");
             free(req);
@@ -89,10 +95,13 @@ request* parse_request(char* buffer, int client_sock) {
             return NULL;
         }
 
+        printf("adding null terminator\n");
         header[strlen(header) - 1] = '\0'; //remove extra :
 
+        printf("inserting into json\n");
         //insert header into headers object
         insert(headers, STRING, header, value); 
+        printf("inserted into json\n");
     }   
 
     // if (req->content_length > BODY_MAX_SIZE) {
@@ -158,12 +167,19 @@ void log_request(request* req) {
  * Frees the request object
  */
 void free_request(request* req) {
-    free(req->method);
-    free(req->path);
-    free(req->version);
-    free(req->body);
+    if (req->method) {
+        free(req->method);
+    }
+    if (req->path) {
+        free(req->path);
+    }
+    if (req->version) {
+        free(req->version);
+    }
+    if (req->headers) {
+        free_json(req->headers);
+    }
     free(req);
-    free_json(req->headers);
 }
 
 /**
@@ -174,5 +190,6 @@ void print_request(request* req) {
     printf("Path: %s\n", req->path);
     printf("Version: %s\n", req->version);
     printf("Body: %s\n", req->body);
+    printf("Headers: %s\n", stringify(req->headers));
     return;
 }
