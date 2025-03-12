@@ -46,4 +46,4 @@ TODO:
   * allow for endpoint definition of what to do in different reuqest types
 * Better template syntax?
 * Cookies?
-* Blueprints? modularity in c may be hard
+* flask Blueprints? modularity in c may be hard
